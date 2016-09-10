@@ -2,6 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving, FlexibleContexts, UndecidableInstances #-}
 {-# LANGUAGE DeriveGeneric, DuplicateRecordFields #-}
+{-# LANGUAGE RankNTypes, ConstraintKinds #-}
 module SubTyping where
 
 import Data.Proxy
@@ -16,6 +17,22 @@ import Generics.SOP.Sing
 import Generics.SOP.Type.Metadata
 import qualified GHC.Generics as GHC
 import GHC.Types
+import Unsafe.Coerce
+
+-- Idea for an actually convenient interface:
+--
+-- Have three levels of representation.
+--
+-- The "full" level contains all info.
+--
+-- The "medium" level contains only the names of constructors and fields.
+--
+-- SOP P2 xss = NS (NP P2 `Compose` P2) xss
+--
+-- Code:
+--
+-- MCode MyRec1 =
+--   '[ '( "MyRec1", '[ '( "rint", Int ), '( "rbool", Bool ) ] ]
 
 -- from :: Generic a => a -> Rep a
 
@@ -47,14 +64,20 @@ toRecord :: (Generic a, Code a ~ '[ x ], r ~ RecordSigOf a, Strip r ~ x, Combine
 toRecord = repToRecord . unZ . unSOP . from
 
 repToRecord :: (xs ~ Strip sig, Combine (Labels sig) xs ~ sig) => NP I xs -> Record sig
-repToRecord Nil = RNil
-repToRecord (I x :* xs) = x :- repToRecord xs
+repToRecord = unsafeCoerce
+{-
+repToRecord Nil = Nil
+repToRecord (I x :* xs) = P2 x :* repToRecord xs
+-}
 
 recordToRep :: forall xs sig . (xs ~ Strip sig, Combine (Labels sig) xs ~ sig, SListI xs) => Record sig -> NP I xs
+recordToRep = unsafeCoerce
+{-
 recordToRep = case sList :: SList xs of
   SNil  -> const Nil
   SCons -> \ r -> case r of
-    x :- xs -> I x :* recordToRep xs
+    P2 x :* xs -> I x :* recordToRep xs
+-}
 
 fromRecord :: (Generic a, Code a ~ '[ x ], r ~ RecordSigOf a, Strip r ~ x, Combine (Labels r) x ~ r) => Record r -> a
 fromRecord = to . SOP . Z . recordToRep
@@ -93,46 +116,81 @@ type family ToRecordSigF (fis :: [FieldInfo]) (c :: [Type]) :: RecordSig where
 type FieldLabel = Symbol
 type RecordSig = [(FieldLabel, Type)]
 
-data Record (r :: RecordSig) where
-  RNil :: Record '[]
-  (:-) :: a -> Record rs -> Record ( '(s, a) : rs )
+newtype P2 (p :: (a, Type)) = P2 (Snd p)
+
+type Record (r :: RecordSig) = NP P2 r
 
 type family Snd (p :: (a, b)) :: b where
   Snd '(a, b) = b
-
-class (Show (Snd p)) => ShowSnd p
-instance (Show (Snd p)) => ShowSnd p
-
-deriving instance All ShowSnd r => Show (Record r)
-
-infixr 5 :-
 
 class IsSubTypeOf (r1 :: RecordSig) (r2 :: RecordSig) where
   coerce :: Record r1 -> Record r2
 
 instance IsSubTypeOf r1 '[] where
-  coerce _ = RNil
+  coerce _ = Nil
 
 instance (IsSubTypeOf r1 rs2, Contains r1 s2 a2) => IsSubTypeOf r1 ( '(s2, a2) : rs2 ) where
-  coerce r = get (Proxy :: Proxy s2) r :- coerce r
+  coerce r = P2 (get (Proxy :: Proxy s2) r) :* coerce r
 
 -- | TODO. Can we reuse GHC.OverloadedLabels.IsLabel or similar?
 class Contains (r :: RecordSig) (s :: Symbol) (a :: Type) where
   get :: Proxy s -> Record r -> a
 
 {-
+instance {-# OVERLAPPING #-} (a1 ~ a2) => Contains ( '(s, a1) : rs ) s a2 where
+  get _ (P2 a :* _) = a
+
+instance {-# OVERLAPPABLE #-} Contains rs s2 a2 => Contains ( '(s1, a1) : rs ) s2 a2 where
+  get p (_ :* r) = get p r
+-}
+
+test1 :: Record '[ '( "name", String ), '( "age", Int ) ]
+test1 = P2 "Andres" :* P2 99 :* Nil
+
+data DFoo x where MkDFoo :: x ~ (y : ys) => DFoo x
+
+-- Sub-project
+--
+-- A proper form of type-equality witnessing in order to bypass
+-- overlapping instances.
+
+-- What we want to be able to write:
+
+instance
+  IfThenElse (IsEqual s1 s2) (a1 ~ a2) (Contains rs s2 a2) =>
+  Contains ( '(s1, a1) : rs ) s2 a2 where
+  get p (P2 a :* r) =
+    ifthenelse (Proxy :: Proxy '(IsEqual s1 s2, a1 ~ a2, Contains rs s2 a2))
+      a
+      (get p r)
+
+class IfThenElse (b :: Bool) (t :: Constraint) (e :: Constraint) where
+  ifthenelse :: Proxy '(b, t, e) -> (t => r) -> (e => r) -> r
+
+instance t => IfThenElse True t e where
+  ifthenelse _ t _ = t
+
+instance e => IfThenElse False t e where
+  ifthenelse _ _ e = e
+
+{-
+data YesNo (a :: Type) (b :: Bool) where
+  Yes :: a -> YesNo a True
+
+data IfThenElse (b :: Bool) (t :: Type) (e :: Type) where
+  Then :: t -> IfThenElse True  t e
+  Else :: e -> IfThenElse False t e
+-}
+
+type family IsEqual (a :: k) (b :: k) :: Bool where
+  IsEqual a a = True
+  IsEqual a b = False
+
+{-
+class CIfThenElse (b :: Bool) (t :: Type) (e :: Type) where
+  ifthenelse :: IfThenElse b t e
+
 type family IfEq (a :: k) (b :: k) (t :: l) (e :: l) where
   IfEq a a t e = t
   IfEq a b t e = e
 -}
-
-instance {-# OVERLAPPING #-} (a1 ~ a2) => Contains ( '(s, a1) : rs ) s a2 where
-  get _ (a :- _) = a
-
-instance {-# OVERLAPPABLE #-} Contains rs s2 a2 => Contains ( '(s1, a1) : rs ) s2 a2 where
-  get p (_ :- r) = get p r
-
-test1 :: Record '[ '( "name", String ), '( "age", Int ) ]
-test1 = "Andres" :- 99 :- RNil
-
-data DFoo x where MkDFoo :: x ~ (y : ys) => DFoo x
