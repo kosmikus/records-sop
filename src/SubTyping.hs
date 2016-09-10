@@ -149,13 +149,6 @@ test1 = P2 "Andres" :* P2 99 :* Nil
 
 data DFoo x where MkDFoo :: x ~ (y : ys) => DFoo x
 
--- Sub-project
---
--- A proper form of type-equality witnessing in order to bypass
--- overlapping instances.
-
--- What we want to be able to write:
-
 instance
   IfThenElse (IsEqual s1 s2) (a1 ~ a2) (Contains rs s2 a2) =>
   Contains ( '(s1, a1) : rs ) s2 a2 where
@@ -173,24 +166,7 @@ instance t => IfThenElse True t e where
 instance e => IfThenElse False t e where
   ifthenelse _ _ e = e
 
-{-
-data YesNo (a :: Type) (b :: Bool) where
-  Yes :: a -> YesNo a True
-
-data IfThenElse (b :: Bool) (t :: Type) (e :: Type) where
-  Then :: t -> IfThenElse True  t e
-  Else :: e -> IfThenElse False t e
--}
-
 type family IsEqual (a :: k) (b :: k) :: Bool where
   IsEqual a a = True
   IsEqual a b = False
 
-{-
-class CIfThenElse (b :: Bool) (t :: Type) (e :: Type) where
-  ifthenelse :: IfThenElse b t e
-
-type family IfEq (a :: k) (b :: k) (t :: l) (e :: l) where
-  IfEq a a t e = t
-  IfEq a b t e = e
--}
