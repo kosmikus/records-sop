@@ -5,6 +5,7 @@
 {-# LANGUAGE RankNTypes, ConstraintKinds #-}
 module SubTyping where
 
+import Data.Type.Equality (type (==))
 import Data.Proxy
 -- import Generics.SOP
 import Generics.SOP.BasicFunctors
@@ -18,6 +19,8 @@ import Generics.SOP.Type.Metadata
 import qualified GHC.Generics as GHC
 import GHC.Types
 import Unsafe.Coerce
+
+import Record
 
 -- Idea for an actually convenient interface:
 --
@@ -120,6 +123,22 @@ newtype P2 (p :: (a, Type)) = P2 (Snd p)
 
 type Record (r :: RecordSig) = NP P2 r
 
+-- We claim that a Record is essentially the same as a Rep.
+-- Can we generalize this?
+
+coerce_NP :: forall k1 k2 f g xs ys . (Rel f g xs ys) => NP f xs -> NP g ys
+coerce_NP Nil       = Nil
+coerce_NP (x :* xs) = x :* coerce_NP xs
+
+type family Rel (f :: k1 -> Type) (g :: k2 -> Type) (xs :: [k1]) (ys :: [k2]) :: Constraint where
+  Rel f g '[]       ys = (ys ~ '[])
+  Rel f g (x ': xs) ys = (ys ~ (Head ys : Tail ys), f x ~ g (Head ys), Rel f g xs (Tail ys))
+
+class Related (f :: k1 -> Type) (g :: k2 -> Type) (xs :: [k1]) (ys :: [k2])
+
+instance (ys ~ '[]) => Related f g '[] ys
+instance (f x ~ g y, zs ~ (y ': ys), Related f g xs ys) => Related f g (x ': xs) zs 
+
 type family Snd (p :: (a, b)) :: b where
   Snd '(a, b) = b
 
@@ -136,6 +155,20 @@ instance (IsSubTypeOf r1 rs2, Contains r1 s2 a2) => IsSubTypeOf r1 ( '(s2, a2) :
 class Contains (r :: RecordSig) (s :: Symbol) (a :: Type) where
   get :: Proxy s -> Record r -> a
 
+class ContainsHelper (b :: Bool) (r :: RecordSig) (s :: Symbol) (a :: Type) where
+  get' :: Proxy b -> Proxy s -> Record r -> a
+
+instance
+  ContainsHelper (s1 == s2) ( '(s1, a1) : rs ) s2 a2 =>
+  Contains ( '(s1, a1) : rs ) s2 a2 where
+  get = get' (Proxy :: Proxy (s1 == s2))
+
+instance (a1 ~ a2) => ContainsHelper True ( '(s, a1) : rs ) s a2 where
+  get' _ _ (P2 a :* _) = a
+
+instance Contains rs s2 a2 => ContainsHelper False ( '(s1, a1) : rs ) s2 a2 where
+  get' _ p (_ :* r) = get p r
+
 {-
 instance {-# OVERLAPPING #-} (a1 ~ a2) => Contains ( '(s, a1) : rs ) s a2 where
   get _ (P2 a :* _) = a
@@ -149,6 +182,7 @@ test1 = P2 "Andres" :* P2 99 :* Nil
 
 data DFoo x where MkDFoo :: x ~ (y : ys) => DFoo x
 
+{-
 instance
   IfThenElse (IsEqual s1 s2) (a1 ~ a2) (Contains rs s2 a2) =>
   Contains ( '(s1, a1) : rs ) s2 a2 where
@@ -165,8 +199,5 @@ instance t => IfThenElse True t e where
 
 instance e => IfThenElse False t e where
   ifthenelse _ _ e = e
-
-type family IsEqual (a :: k) (b :: k) :: Bool where
-  IsEqual a a = True
-  IsEqual a b = False
+-}
 
