@@ -51,78 +51,10 @@ instance HasDatatypeInfo MyRec1
 instance Generic MyRec2
 instance HasDatatypeInfo MyRec2
 
-cast ::
-     ( Generic a, Generic b
-     , Code a ~ '[ ca ], Code b ~ '[ cb ]
-     , siga ~ RecordSigOf a, sigb ~ RecordSigOf b
-     , Strip siga ~ ca, Strip sigb ~ cb
-     , Combine (Labels siga) ca ~ siga
-     , Combine (Labels sigb) cb ~ sigb
-     , IsSubTypeOf siga sigb
-     )
-  => a -> b
+cast :: (IsRecord a siga, IsRecord b sigb, IsSubTypeOf siga sigb) => a -> b
 cast = fromRecord . coerce . toRecord
 
-toRecord :: (Generic a, Code a ~ '[ x ], r ~ RecordSigOf a, Strip r ~ x, Combine (Labels r) x ~ r) => a -> Record r
-toRecord = repToRecord . unZ . unSOP . from
-
-repToRecord :: (xs ~ Strip sig, Combine (Labels sig) xs ~ sig) => NP I xs -> Record sig
-repToRecord = unsafeCoerce
 {-
-repToRecord Nil = Nil
-repToRecord (I x :* xs) = P2 x :* repToRecord xs
--}
-
-recordToRep :: forall xs sig . (xs ~ Strip sig, Combine (Labels sig) xs ~ sig, SListI xs) => Record sig -> NP I xs
-recordToRep = unsafeCoerce
-{-
-recordToRep = case sList :: SList xs of
-  SNil  -> const Nil
-  SCons -> \ r -> case r of
-    P2 x :* xs -> I x :* recordToRep xs
--}
-
-fromRecord :: (Generic a, Code a ~ '[ x ], r ~ RecordSigOf a, Strip r ~ x, Combine (Labels r) x ~ r) => Record r -> a
-fromRecord = to . SOP . Z . recordToRep
-
-type family Strip (r :: RecordSig) :: [Type] where
-  Strip '[] = '[]
-  Strip ( '(_, a) : sig ) = a : Strip sig
-
-type family Labels (r :: RecordSig) :: [Symbol] where
-  Labels '[] = '[]
-  Labels ( '(l, _) : sig ) = l : Labels sig
-
-type family Combine (ss :: [Symbol]) (ts :: [Type]) :: RecordSig where
-  Combine _ '[] = '[]
-  Combine ss (t : ts) = '(Head ss, t) : Combine (Tail ss) ts
-
-type family Head (xs :: [k]) :: k where
-  Head (x : xs) = x
-
-type family Tail (xs :: [k]) :: [k] where
-  Tail (x : xs) = xs
-
-type RecordSigOf a = ToRecordSig (DatatypeInfoOf a) (Code a)
-
-type family ToRecordSig (d :: DatatypeInfo) (c :: [[Type]]) :: RecordSig where
-  ToRecordSig (ADT _ _ cis)    c = ToRecordSigC cis c
-  ToRecordSig (Newtype _ _ ci) c = ToRecordSigC '[ ci ] c
-
-type family ToRecordSigC (cis :: [ConstructorInfo]) (c :: [[Type]]) :: RecordSig where
-  ToRecordSigC '[ 'Record _ fis ] '[ ts ] = ToRecordSigF fis ts
-
-type family ToRecordSigF (fis :: [FieldInfo]) (c :: [Type]) :: RecordSig where
-  ToRecordSigF '[] '[] = '[]
-  ToRecordSigF ( 'FieldInfo l : fis ) ( t : ts ) = '(l, t) : ToRecordSigF fis ts
-
-type FieldLabel = Symbol
-type RecordSig = [(FieldLabel, Type)]
-
-newtype P2 (p :: (a, Type)) = P2 (Snd p)
-
-type Record (r :: RecordSig) = NP P2 r
-
 -- We claim that a Record is essentially the same as a Rep.
 -- Can we generalize this?
 
@@ -138,24 +70,22 @@ class Related (f :: k1 -> Type) (g :: k2 -> Type) (xs :: [k1]) (ys :: [k2])
 
 instance (ys ~ '[]) => Related f g '[] ys
 instance (f x ~ g y, zs ~ (y ': ys), Related f g xs ys) => Related f g (x ': xs) zs 
+-}
 
-type family Snd (p :: (a, b)) :: b where
-  Snd '(a, b) = b
-
-class IsSubTypeOf (r1 :: RecordSig) (r2 :: RecordSig) where
+class IsSubTypeOf (r1 :: RecordCode) (r2 :: RecordCode) where
   coerce :: Record r1 -> Record r2
 
 instance IsSubTypeOf r1 '[] where
   coerce _ = Nil
 
 instance (IsSubTypeOf r1 rs2, Contains r1 s2 a2) => IsSubTypeOf r1 ( '(s2, a2) : rs2 ) where
-  coerce r = P2 (get (Proxy :: Proxy s2) r) :* coerce r
+  coerce r = P (get (Proxy :: Proxy s2) r) :* coerce r
 
 -- | TODO. Can we reuse GHC.OverloadedLabels.IsLabel or similar?
-class Contains (r :: RecordSig) (s :: Symbol) (a :: Type) where
+class Contains (r :: RecordCode) (s :: Symbol) (a :: Type) where
   get :: Proxy s -> Record r -> a
 
-class ContainsHelper (b :: Bool) (r :: RecordSig) (s :: Symbol) (a :: Type) where
+class ContainsHelper (b :: Bool) (r :: RecordCode) (s :: Symbol) (a :: Type) where
   get' :: Proxy b -> Proxy s -> Record r -> a
 
 instance
@@ -164,7 +94,7 @@ instance
   get = get' (Proxy :: Proxy (s1 == s2))
 
 instance (a1 ~ a2) => ContainsHelper True ( '(s, a1) : rs ) s a2 where
-  get' _ _ (P2 a :* _) = a
+  get' _ _ (P a :* _) = a
 
 instance Contains rs s2 a2 => ContainsHelper False ( '(s1, a1) : rs ) s2 a2 where
   get' _ p (_ :* r) = get p r
@@ -178,7 +108,7 @@ instance {-# OVERLAPPABLE #-} Contains rs s2 a2 => Contains ( '(s1, a1) : rs ) s
 -}
 
 test1 :: Record '[ '( "name", String ), '( "age", Int ) ]
-test1 = P2 "Andres" :* P2 99 :* Nil
+test1 = P "Andres" :* P 99 :* Nil
 
 data DFoo x where MkDFoo :: x ~ (y : ys) => DFoo x
 
