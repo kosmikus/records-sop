@@ -30,7 +30,13 @@ import Record
 cast :: (IsRecord a ra, IsRecord b rb, IsSubTypeOf ra rb) => a -> b
 cast = fromRecord . castRecord . toRecord
 
+-- | Class that checks whether one record code is convertible into another.
+--
+-- Conversion works if the first record contains at least the labels of the
+-- second record, and if the types of the corresponding fields match exactly.
+--
 class IsSubTypeOf (r1 :: RecordCode) (r2 :: RecordCode) where
+  -- | Perform a safe cast between two records.
   castRecord :: Record r1 -> Record r2
 
 instance IsSubTypeOf r1 '[] where
@@ -39,7 +45,13 @@ instance IsSubTypeOf r1 '[] where
 instance (IsSubTypeOf r1 r2, IsElemOf s2 a2 r1) => IsSubTypeOf r1 ( '(s2, a2) : r2 ) where
   castRecord r = P (get @s2 r) :* castRecord r
 
+-- | Class that checks whether a field of a particular type is contained
+-- in a record.
+--
 class IsElemOf (s :: Symbol) (a :: Type) (r :: RecordCode) where
+  -- | Perform an extraction of a given field. Field name has to be passed
+  -- via type application.
+  --
   get :: Record r -> a
 
 -- | Helper class. Isn't strictly needed, but allows us to avoid
