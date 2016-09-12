@@ -51,6 +51,7 @@ instance Generic D
 instance HasDatatypeInfo D
 instance NFData D
 
+-- Wrong type.
 data E = MkE { anInt :: Int, aBool :: Bool, aChar :: () }
   deriving (Eq, Show, GHC.Generic)
 
@@ -58,6 +59,7 @@ instance Generic E
 instance HasDatatypeInfo E
 instance NFData E
 
+-- No field labels.
 data F = MkF Int Bool Char
   deriving (Eq, Show, GHC.Generic)
 
@@ -65,6 +67,7 @@ instance Generic F
 instance HasDatatypeInfo F
 instance NFData F
 
+-- Two constructors.
 data G = MkG { anInt :: Int, aBool :: Bool, aChar :: Char }
        | OtherG
   deriving (Eq, Show, GHC.Generic)
