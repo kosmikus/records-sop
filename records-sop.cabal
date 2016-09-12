@@ -1,4 +1,4 @@
-name: record-subtyping
+name: records-sop
 version: 0.1
 cabal-version: >= 1.10
 build-type: Simple
@@ -7,8 +7,8 @@ library
   hs-source-dirs:
     src
   exposed-modules:
-    Record,
-    SubTyping
+    Generics.SOP.Record,
+    Generics.SOP.Record.SubTyping
   build-depends:
     base,
     generics-sop,

@@ -12,13 +12,13 @@
 {-# OPTIONS_GHC
   -fno-warn-unticked-promoted-constructors
 #-}
-module SubTyping where
+module Generics.SOP.Record.SubTyping where
 
 import Data.Type.Equality (type (==))
 import Generics.SOP.NP
 import GHC.Types
 
-import Record
+import Generics.SOP.Record
 
 -- | Cast one record type to another if there is a subtype relationship
 -- between them. Currently, only width subtyping is considered, which means

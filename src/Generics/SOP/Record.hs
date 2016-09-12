@@ -14,7 +14,7 @@
   -fno-warn-unused-top-binds
   -fno-warn-redundant-constraints
 #-}
-module Record
+module Generics.SOP.Record
   ( -- * A suitable representation for single-constructor records
     FieldLabel
   , RecordCode
