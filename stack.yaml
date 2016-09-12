@@ -1,0 +1,4 @@
+resolver: nightly-2016-09-12
+packages:
+- generics-sop/
+- '.'
