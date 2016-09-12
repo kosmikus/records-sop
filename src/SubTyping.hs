@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeInType, TypeFamilies, GADTs, DataKinds, PolyKinds, TypeOperators #-}
 {-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving, FlexibleContexts, UndecidableInstances #-}
-{-# LANGUAGE DeriveGeneric, DuplicateRecordFields #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RankNTypes, ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes, TypeApplications #-}
 module SubTyping where
@@ -23,25 +23,11 @@ import Unsafe.Coerce
 
 import Record
 
-{-
-data MyRec1 = MyRec1 { rint :: Int, rbool :: Bool }
-  deriving (GHC.Generic, Show)
-
-data MyRec2 = MyRec2 { rbool :: Bool, rchar :: Char, rint :: Int }
-  deriving (GHC.Generic, Show)
-
-instance Generic MyRec1
-instance HasDatatypeInfo MyRec1
-
-instance Generic MyRec2
-instance HasDatatypeInfo MyRec2
--}
-
 -- | Cast one record type to another if there is a subtype relationship
 -- between them. Currently, only width subtyping is considered, which means
 -- that we can forget and reorder fields.
 --
-cast :: (IsRecord a siga, IsRecord b sigb, IsSubTypeOf siga sigb) => a -> b
+cast :: (IsRecord a ra, IsRecord b rb, IsSubTypeOf ra rb) => a -> b
 cast = fromRecord . castRecord . toRecord
 
 class IsSubTypeOf (r1 :: RecordCode) (r2 :: RecordCode) where
@@ -50,26 +36,31 @@ class IsSubTypeOf (r1 :: RecordCode) (r2 :: RecordCode) where
 instance IsSubTypeOf r1 '[] where
   castRecord _ = Nil
 
-instance (IsSubTypeOf r1 rs2, IsElemOf s2 a2 r1) => IsSubTypeOf r1 ( '(s2, a2) : rs2 ) where
+instance (IsSubTypeOf r1 r2, IsElemOf s2 a2 r1) => IsSubTypeOf r1 ( '(s2, a2) : r2 ) where
   castRecord r = P (get @s2 r) :* castRecord r
 
 class IsElemOf (s :: Symbol) (a :: Type) (r :: RecordCode) where
   get :: Record r -> a
 
-class IsElemOf' (b :: Bool) (s :: Symbol) (a :: Type) (r :: RecordCode) where
-  get' :: Record r -> a
+-- | Helper class. Isn't strictly needed, but allows us to avoid
+-- overlapping instances for the 'IsElemOf' class.
+--
+class IsElemOf' (b :: Bool)
+  (s1 :: Symbol) (a1 :: Type)
+  (s2 :: Symbol) (a2 :: Type)
+  (r :: RecordCode)
+  where
+  get' :: Record ( '(s2, a2) : r ) -> a1
 
 instance
-  IsElemOf' (s1 == s2) s2 a2 ( '(s1, a1) : rs ) =>
-  IsElemOf s2 a2 ( '(s1, a1) : rs ) where
-  get = get' @(s1 == s2) @s2
+  IsElemOf' (s1 == s2) s1 a1 s2 a2 r =>
+  IsElemOf s1 a1 ( '(s2, a2) : r )
+  where
+  get = get' @(s1 == s2) @s1
 
--- | Helper class. Isn't strictly needed, but allows us to avoid
--- overlapping instances.
---
-instance (a1 ~ a2) => IsElemOf' True s a2 ( '(s, a1) : rs ) where
+instance (a1 ~ a2) => IsElemOf' True s a1 s a2 r where
   get' (P a :* _) = a
 
-instance IsElemOf s2 a2 rs => IsElemOf' False s2 a2 ( '(s1, a1) : rs ) where
-  get' (_ :* r) = get @s2 r
+instance IsElemOf s1 a1 r => IsElemOf' False s1 a1 s2 a2 r where
+  get' (_ :* r) = get @s1 r
 
