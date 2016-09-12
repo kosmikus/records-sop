@@ -1,25 +1,22 @@
-{-# LANGUAGE TypeInType, TypeFamilies, GADTs, DataKinds, PolyKinds, TypeOperators #-}
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving, FlexibleContexts, UndecidableInstances #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE RankNTypes, ConstraintKinds #-}
-{-# LANGUAGE AllowAmbiguousTypes, TypeApplications #-}
+{-# LANGUAGE
+    AllowAmbiguousTypes
+  , FlexibleInstances
+  , MultiParamTypeClasses
+  , ScopedTypeVariables
+  , TypeApplications
+  , TypeInType
+  , TypeFamilies
+  , TypeOperators
+  , UndecidableInstances
+#-}
+{-# OPTIONS_GHC
+  -fno-warn-unticked-promoted-constructors
+#-}
 module SubTyping where
 
 import Data.Type.Equality (type (==))
-import Data.Proxy
--- import Generics.SOP
-import Generics.SOP.BasicFunctors
-import Generics.SOP.Constraint
-import Generics.SOP.GGP
 import Generics.SOP.NP
-import Generics.SOP.NS
-import Generics.SOP.Universe
-import Generics.SOP.Sing
-import Generics.SOP.Type.Metadata
-import qualified GHC.Generics as GHC
 import GHC.Types
-import Unsafe.Coerce
 
 import Record
 
