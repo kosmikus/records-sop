@@ -96,22 +96,42 @@ type Record (r :: RecordCode) = NP P r
 -- record, meaning it must have exactly one constructor, and that
 -- constructor must have field labels attached to it.
 --
-type RecordCodeOf a = ToRecordCode_Datatype (DatatypeInfoOf a) (Code a)
+type RecordCodeOf a = ToRecordCode_Datatype a (DatatypeInfoOf a) (Code a)
 
 -- | Helper for 'RecordCodeOf', handling the datatype level. Both
 -- datatypes and newtypes are acceptable. Newtypes are just handled
 -- as one-constructor datatypes for this purpose.
 --
-type family ToRecordCode_Datatype (d :: DatatypeInfo) (c :: [[Type]]) :: RecordCode where
-  ToRecordCode_Datatype (ADT _ _ cis)    c = ToRecordCode_Constructor cis c
-  ToRecordCode_Datatype (Newtype _ _ ci) c = ToRecordCode_Constructor '[ ci ] c
+type family
+  ToRecordCode_Datatype (a :: Type) (d :: DatatypeInfo) (c :: [[Type]]) :: RecordCode where
+  ToRecordCode_Datatype a (ADT _ _ cis)    c = ToRecordCode_Constructor a cis c
+  ToRecordCode_Datatype a (Newtype _ _ ci) c = ToRecordCode_Constructor a '[ ci ] c
 
 -- | Helper for 'RecordCodeOf', handling the constructor level. Only
 -- single-constructor types are acceptable, and the constructor must
 -- contain field labels.
 --
-type family ToRecordCode_Constructor (cis :: [ConstructorInfo]) (c :: [[Type]]) :: RecordCode where
-  ToRecordCode_Constructor '[ 'Record _ fis ] '[ ts ] = ToRecordCode_Field fis ts
+-- As an exception, we accept an empty record.
+--
+type family
+  ToRecordCode_Constructor (a :: Type) (cis :: [ConstructorInfo]) (c :: [[Type]]) :: RecordCode where
+  ToRecordCode_Constructor a '[ 'Record _ fis  ] '[ ts  ] = ToRecordCode_Field fis ts
+  ToRecordCode_Constructor a '[ 'Constructor _ ] '[ '[] ] = '[]
+  ToRecordCode_Constructor a '[]                  _       =
+    TypeError
+      (    Text "The type `" :<>: ShowType a :<>: Text "' is not a record type."
+      :$$: Text "It has no constructors."
+      )
+  ToRecordCode_Constructor a ( _ : _ : _ )        _       =
+    TypeError
+      (    Text "The type `" :<>: ShowType a :<>: Text "' is not a record type."
+      :$$: Text "It has more than one constructor."
+      )
+  ToRecordCode_Constructor a '[ _ ]               _       =
+    TypeError
+      (    Text "The type `" :<>: ShowType a :<>: Text "' is not a record type."
+      :$$: Text "It has no labelled fields."
+      )
 
 -- | Helper for 'RecordCodeOf', handling the field level. At this point,
 -- we simply zip the list of field names and the list of types.
