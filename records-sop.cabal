@@ -11,8 +11,7 @@ library
     Generics.SOP.Record.SubTyping
   build-depends:
     base >= 4.9 && < 5.0,
-    -- actually needs development version of generics-sop
-    generics-sop >= 0.2.5.0 && < 0.3,
+    generics-sop >= 0.3 && < 0.4,
     ghc-prim >= 0.5 && < 0.6
   default-language:
     Haskell2010
@@ -28,7 +27,7 @@ test-suite examples
     base >= 4.9 && < 5.0,
     deepseq >= 1.4 && < 1.5,
     hspec >= 2.2 && < 2.3,
-    generics-sop >= 0.2.5.0 && < 0.3,
+    generics-sop >= 0.3 && < 0.4,
     records-sop,
     should-not-typecheck >= 2.1 && < 2.2
   default-language:
