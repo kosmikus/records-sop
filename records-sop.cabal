@@ -2,6 +2,7 @@ name: records-sop
 version: 0.1
 cabal-version: >= 1.10
 build-type: Simple
+tested-with: GHC == 8.0.1, GHC == 8.0.2, GHC == 8.1.*
 
 library
   hs-source-dirs:
