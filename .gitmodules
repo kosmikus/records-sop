@@ -1,4 +1,4 @@
 [submodule "generics-sop"]
 	path = generics-sop
-	url = git@github.com:well-typed/generics-sop.git
+	url = ../../well-typed/generics-sop.git
 	branch = type-level-meta-simpler
