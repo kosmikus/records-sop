@@ -19,6 +19,7 @@ module Generics.SOP.Record.SubTyping
   )
   where
 
+import Data.Type.Equality
 import Generics.SOP.NP
 import GHC.Types
 
@@ -77,14 +78,10 @@ instance (a1 ~ a2) => IsElemOf' True s a1 s a2 r where
 instance IsElemOf s1 a1 r => IsElemOf' False s1 a1 s2 a2 r where
   get' (_ :* r) = get @s1 r
 
--- | Helper type family that decides the equality of two field labels.
+-- | Decide the equality of two field labels.
 --
--- Just a special case of polymorphic type equality, which does
--- not seem to be defined by GHC. Note that the module
--- @GHC.Type.Equality@ defines an operator @(==)@ which is not
--- polymorphic type equality and therefore not suitable here.
+-- Just a special case of polymorphic type equality.
 --
 type family
   SameFieldLabel (s1 :: FieldLabel) (s2 :: FieldLabel) :: Bool where
-  SameFieldLabel s  s  = True
-  SameFieldLabel s1 s2 = False
+  SameFieldLabel s1 s2 = s1 == s2
