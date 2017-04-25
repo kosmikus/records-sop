@@ -2,7 +2,7 @@
     DeriveGeneric
   , DuplicateRecordFields
 #-}
-{-# OPTIONS_GHC -fdefer-type-errors #-}
+{-# OPTIONS_GHC -fdefer-type-errors -Wno-deferred-type-errors #-}
 module Main where
 
 import Control.DeepSeq
@@ -146,27 +146,27 @@ main = hspec $
       (cast e :: A) `shouldBe` a
     it "successfully casts E to D" $
       (cast e :: D) `shouldBe` d
-    it "fails to cast A to B" $
+    it "correctly fails to cast A to B" $
       shouldNotTypecheck (cast a :: B)
-    it "fails to cast A to C" $
+    it "correctly fails to cast A to C" $
       shouldNotTypecheck (cast a :: C)
-    it "fails to cast D to A" $
+    it "correctly fails to cast D to A" $
       shouldNotTypecheck (cast d :: A)
-    it "fails to cast D to B" $
+    it "correctly fails to cast D to B" $
       shouldNotTypecheck (cast d :: B)
-    it "fails to cast D to C" $
+    it "correctly fails to cast D to C" $
       shouldNotTypecheck (cast d :: C)
-    it "fails to cast E to B" $
+    it "correctly fails to cast E to B" $
       shouldNotTypecheck (cast e :: B)
-    it "fails to cast E to C" $
+    it "correctly fails to cast E to C" $
       shouldNotTypecheck (cast e :: C)
     -- The following two produce type errors as expected.
     -- Unfortunately, user-defined type errors in combination
     -- with shouldNotTypeCheck seems to trigger an internal
     -- error ...
-    {-
+{-
     it "fails to cast F to anything (even X)" $
-      shouldNotTypeCheck (cast f :: X)
+      shouldNotTypecheck (cast f :: X)
     it "fails to cast G to anything (even X)" $
-      shouldNotTypeCheck (cast g :: X)
-    -}
+      shouldNotTypecheck (cast g :: X)
+-}
