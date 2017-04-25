@@ -163,7 +163,7 @@ main = hspec $
     -- The following two produce type errors as expected.
     -- Unfortunately, user-defined type errors in combination
     -- with shouldNotTypeCheck seems to trigger an internal
-    -- error ...
+    -- error ... (see GHC bug #12104)
 {-
     it "fails to cast F to anything (even X)" $
       shouldNotTypecheck (cast f :: X)
