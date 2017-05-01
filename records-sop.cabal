@@ -1,8 +1,16 @@
 name: records-sop
-version: 0.1
+version: 0.1.0.0
 cabal-version: >= 1.10
 build-type: Simple
 tested-with: GHC == 8.0.1, GHC == 8.0.2, GHC == 8.2.1, GHC == 8.3.*
+synopsis: Record subtyping and record utilities with generics-sop
+description:
+  This library provides utilities for working with labelled
+  single-constructor record types via generics-sop.
+  .
+  It also provides functions to safely cast between record
+  types if the target type has a subset of the fields (with
+  the same names) of the source type.
 
 library
   hs-source-dirs:
