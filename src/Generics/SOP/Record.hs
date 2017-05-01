@@ -1,19 +1,15 @@
-{-# LANGUAGE
-    ConstraintKinds
-  , DeriveGeneric
-  , FlexibleInstances
-  , ScopedTypeVariables
-  , StandaloneDeriving
-  , TypeInType
-  , TypeFamilies
-  , TypeOperators
-  , UndecidableInstances
-#-}
-{-# OPTIONS_GHC
-  -fno-warn-unticked-promoted-constructors
-  -fno-warn-unused-top-binds
-  -fno-warn-redundant-constraints
-#-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeInType #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
+{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
 module Generics.SOP.Record
   ( -- * A suitable representation for single-constructor records
     FieldLabel
@@ -206,9 +202,9 @@ toRecord = unsafeToRecord_NP . unZ . unSOP . from
 -- to demonstrate that it actually is type-correct and also
 -- to make it more obvious that it is indeed a no-op.
 --
-toRecord_NP :: (ValidRecordCode r xs) => NP I xs -> Record r
-toRecord_NP Nil         = Nil
-toRecord_NP (I x :* xs) = P x :* toRecord_NP xs
+_toRecord_NP :: (ValidRecordCode r xs) => NP I xs -> Record r
+_toRecord_NP Nil         = Nil
+_toRecord_NP (I x :* xs) = P x :* _toRecord_NP xs
 
 -- | Fast version of 'toRecord_NP'. Not actually unsafe as
 -- long as the internal representations of 'NP' and 'Record'
@@ -228,11 +224,11 @@ fromRecord = to . SOP . Z . unsafeFromRecord_NP
 -- This is compatible with the definition of 'RecombineRecordCode' based on
 -- the list of types.
 --
-fromRecord_NP :: forall r xs . (ValidRecordCode r xs, SListI xs) => Record r -> NP I xs
-fromRecord_NP = case sList :: SList xs of
+_fromRecord_NP :: forall r xs . (ValidRecordCode r xs, SListI xs) => Record r -> NP I xs
+_fromRecord_NP = case sList :: SList xs of
   SNil  -> const Nil
   SCons -> \ r -> case r of
-    P x :* xs -> I x :* fromRecord_NP xs
+    P x :* xs -> I x :* _fromRecord_NP xs
 
 -- | Fast version of 'fromRecord_NP'. Not actually unsafe as
 -- long as the internal representation of 'NP' and 'Record'
