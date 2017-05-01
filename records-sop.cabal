@@ -1,8 +1,13 @@
 name: records-sop
 version: 0.1.0.0
+author: Andres Löh <andres@well-typed.com>
+maintainer: andres@well-typed.com
+license: BSD3
+license-file: LICENSE
 cabal-version: >= 1.10
 build-type: Simple
 tested-with: GHC == 8.0.1, GHC == 8.0.2, GHC == 8.2.1, GHC == 8.3.*
+category: Generics
 synopsis: Record subtyping and record utilities with generics-sop
 description:
   This library provides utilities for working with labelled
@@ -11,10 +16,17 @@ description:
   It also provides functions to safely cast between record
   types if the target type has a subset of the fields (with
   the same names) of the source type.
+extra-source-files: CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/kosmikus/records-sop
 
 library
   hs-source-dirs:
     src
+  ghc-options:
+    -Wall
   exposed-modules:
     Generics.SOP.Record,
     Generics.SOP.Record.SubTyping
@@ -31,6 +43,8 @@ test-suite examples
     exitcode-stdio-1.0
   hs-source-dirs:
     tests
+  ghc-options:
+    -Wall
   main-is:
     Examples.hs
   build-depends:
