@@ -32,6 +32,7 @@ module Generics.SOP.Record
   )
   where
 
+import Control.DeepSeq
 import Generics.SOP.BasicFunctors
 import Generics.SOP.NP
 import Generics.SOP.NS
@@ -107,7 +108,8 @@ type family
 -- single-constructor types are acceptable, and the constructor must
 -- contain field labels.
 --
--- As an exception, we accept an empty record.
+-- As an exception, we accept an empty record, even though it does
+-- not explicitly define any field labels.
 --
 type family
   ToRecordCode_Constructor (a :: Type) (cis :: [ConstructorInfo]) (c :: [[Type]]) :: RecordCode where
@@ -247,7 +249,12 @@ unsafeFromRecord_NP = unsafeCoerce
 newtype P (p :: (a, Type)) = P (Snd p)
   deriving (GHC.Generic)
 
+deriving instance Eq a => Eq (P '(l, a))
+deriving instance Ord a => Ord (P '(l, a))
 deriving instance Show a => Show (P '(l, a))
+
+instance NFData a => NFData (P '(l, a)) where
+  rnf (P x) = rnf x
 
 -- | Type-level variant of 'snd'.
 type family Snd (p :: (a, b)) :: b where
