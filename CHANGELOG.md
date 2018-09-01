@@ -1,3 +1,8 @@
+# 0.1.0.1 (2018-09-01)
+
+* Relax version bound for hspec and fix a warning in
+  the test suite.
+
 # 0.1.0.0 (2017-05-01)
 
 * Initial release. Everything is still rather experimental.
