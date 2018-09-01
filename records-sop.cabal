@@ -6,7 +6,7 @@ license: BSD3
 license-file: LICENSE
 cabal-version: >= 1.10
 build-type: Simple
-tested-with: GHC == 8.0.1, GHC == 8.0.2, GHC == 8.2.1, GHC == 8.3.*
+tested-with: GHC == 8.0.2, GHC == 8.2.1, GHC == 8.4.3, GHC == 8.6.1
 category: Generics
 synopsis: Record subtyping and record utilities with generics-sop
 description:
@@ -32,7 +32,7 @@ library
     Generics.SOP.Record.SubTyping
   build-depends:
     base >= 4.9 && < 5.0,
-    deepseq >= 1.3 && < 1.5,            
+    deepseq >= 1.3 && < 1.5,
     generics-sop >= 0.3 && < 0.4,
     ghc-prim >= 0.5 && < 0.6
   default-language:
