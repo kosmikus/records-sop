@@ -11,7 +11,6 @@ import Test.Hspec
 import Test.ShouldNotTypecheck
 
 import Generics.SOP
-import Generics.SOP.Record
 import Generics.SOP.Record.SubTyping
 
 data X = MkX {}
