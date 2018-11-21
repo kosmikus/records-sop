@@ -50,7 +50,7 @@ test-suite examples
   build-depends:
     base >= 4.9 && < 5.0,
     deepseq >= 1.4 && < 1.5,
-    hspec >= 2.2 && < 2.6,
+    hspec >= 2.2 && < 2.7,
     generics-sop >= 0.3 && < 0.5,
     records-sop,
     should-not-typecheck >= 2.1 && < 2.2
