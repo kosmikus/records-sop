@@ -6,7 +6,7 @@ license: BSD3
 license-file: LICENSE
 cabal-version: >= 1.10
 build-type: Simple
-tested-with: GHC == 8.0.2, GHC == 8.2.1, GHC == 8.4.3, GHC == 8.6.1
+tested-with: GHC == 8.0.2, GHC == 8.2.1, GHC == 8.4.4, GHC == 8.6.5
 category: Generics
 synopsis: Record subtyping and record utilities with generics-sop
 description:
