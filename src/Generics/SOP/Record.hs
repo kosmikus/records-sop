@@ -1,5 +1,5 @@
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -102,7 +102,11 @@ type RecordCodeOf a = ToRecordCode_Datatype a (DatatypeInfoOf a) (Code a)
 --
 type family
   ToRecordCode_Datatype (a :: Type) (d :: DatatypeInfo) (c :: [[Type]]) :: RecordCode where
+#if MIN_VERSION_generics_sop(0,5,0)
+  ToRecordCode_Datatype a (ADT _ _ cis _)  c = ToRecordCode_Constructor a cis c
+#else
   ToRecordCode_Datatype a (ADT _ _ cis)    c = ToRecordCode_Constructor a cis c
+#endif
   ToRecordCode_Datatype a (Newtype _ _ ci) c = ToRecordCode_Constructor a '[ ci ] c
 
 -- | Helper for 'RecordCodeOf', handling the constructor level. Only
