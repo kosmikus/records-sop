@@ -243,7 +243,7 @@ unsafeFromRecord_NP = unsafeCoerce
 --------------------------------------------------------------------------
 -- Utilities
 --------------------------------------------------------------------------
- 
+
 -- | Projection of the second component of a type-level pair,
 -- wrapped in a newtype.
 --
