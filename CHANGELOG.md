@@ -1,3 +1,7 @@
+# 0.1.0.3 (2019-05-09)
+
+* Compatibility with `generics-sop-0.5`.
+
 # 0.1.0.2 (2018-10-20)
 
 * Relax version bound on generics-sop and add an
