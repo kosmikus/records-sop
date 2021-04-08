@@ -16,6 +16,7 @@ module Generics.SOP.Record.SubTyping
   ( cast
   , IsSubTypeOf
   , IsElemOf
+  , get
   )
   where
 
