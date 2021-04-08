@@ -77,7 +77,7 @@ instance (a1 ~ a2) => IsElemOf' True s a1 s a2 r where
   get' (P a :* _) = a
 
 instance IsElemOf s1 a1 r => IsElemOf' False s1 a1 s2 a2 r where
-  get' (_ :* r) = get @s1 r
+  get' (_ :* r) = getField @s1 r
 
 -- | Decide the equality of two field labels.
 --
