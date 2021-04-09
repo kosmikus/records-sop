@@ -1,3 +1,7 @@
+# 0.1.1.0 (2020-04-09)
+
+* Export `get`.
+
 # 0.1.0.3 (2019-05-09)
 
 * Compatibility with `generics-sop-0.5`.
