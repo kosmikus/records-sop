@@ -17,6 +17,7 @@ module Generics.SOP.Record.SubTyping
   , IsSubTypeOf
   , IsElemOf
   , get
+  , getField
   )
   where
 
@@ -32,6 +33,12 @@ import Generics.SOP.Record
 --
 cast :: (IsRecord a ra, IsRecord b rb, IsSubTypeOf ra rb) => a -> b
 cast = fromRecord . castRecord . toRecord
+
+-- | Extract a record field based on the symbolic name of a field.
+-- Requires an explicit type application for the field name.
+--
+getField :: forall s a b ra . (IsRecord a ra, IsElemOf s b ra) => a -> b
+getField = get @s . toRecord
 
 -- | Class that checks whether one record code is convertible into another.
 --

@@ -1,6 +1,6 @@
 # 0.1.1.0 (2020-04-09)
 
-* Export `get`.
+* Export `get` and add `getField`.
 
 # 0.1.0.3 (2019-05-09)
 
