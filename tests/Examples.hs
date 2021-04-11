@@ -1,6 +1,8 @@
 {-# LANGUAGE
-    DeriveGeneric
+    DataKinds
+  , DeriveGeneric
   , DuplicateRecordFields
+  , TypeApplications
 #-}
 {-# OPTIONS_GHC -fdefer-type-errors -Wno-deferred-type-errors #-}
 module Main where
@@ -169,3 +171,23 @@ main = hspec $
     it "fails to cast G to anything (even X)" $
       shouldNotTypecheck (cast g :: X)
 -}
+    it "successfully extracts anInt from A" $
+      getField @"anInt" a `shouldBe` 3
+    it "successfully extracts aBool from A" $
+      getField @"aBool" a `shouldBe` True
+    it "correctly fails to extract aChar from A" $
+      shouldNotTypecheck (getField @"aChar" a)
+    it "successfully extracts anInt from B" $
+      getField @"anInt" b `shouldBe` 3
+    it "successfully extracts aBool from B" $
+      getField @"aBool" b `shouldBe` True
+    it "successfully extracts aChar from B" $
+      getField @"aChar" b `shouldBe` 'x'
+    it "successfully extracts anInt from C" $
+      getField @"anInt" c `shouldBe` 3
+    it "successfully extracts aBool from C" $
+      getField @"aBool" c `shouldBe` True
+    it "successfully extracts aChar from C" $
+      getField @"aChar" c `shouldBe` 'x'
+    it "successfully extracts the first anInt from D" $
+      getField @"anInt" d' `shouldBe` 3
