@@ -221,7 +221,7 @@ unsafeToRecord_NP :: (ValidRecordCode r xs) => NP I xs -> Record r
 unsafeToRecord_NP = unsafeCoerce
 
 -- | Convert a record representation back into a value.
-fromRecord :: (IsRecord a r) => RecordRep a -> a
+fromRecord :: (IsRecord' a r xs, ValidRecordCode r xs) => RecordRep a -> a
 fromRecord = to . SOP . Z . unsafeFromRecord_NP
 
 -- | Convert a record representation into an n-ary product. This is a no-op,

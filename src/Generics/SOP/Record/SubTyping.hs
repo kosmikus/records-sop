@@ -1,5 +1,6 @@
 {-# LANGUAGE
     AllowAmbiguousTypes
+  , FlexibleContexts
   , FlexibleInstances
   , MultiParamTypeClasses
   , ScopedTypeVariables
