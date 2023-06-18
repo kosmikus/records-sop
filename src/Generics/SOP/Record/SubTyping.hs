@@ -14,7 +14,7 @@
 #else
 {-# LANGUAGE TypeInType #-}
 #endif
-{-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
+{-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 module Generics.SOP.Record.SubTyping
   ( cast
   , IsSubTypeOf

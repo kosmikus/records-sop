@@ -14,8 +14,8 @@
 #else
 {-# LANGUAGE TypeInType #-}
 #endif
-{-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
-{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+{-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 module Generics.SOP.Record
   ( -- * A suitable representation for single-constructor records
     FieldLabel
