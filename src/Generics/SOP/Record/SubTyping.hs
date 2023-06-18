@@ -1,18 +1,20 @@
-{-# LANGUAGE
-    AllowAmbiguousTypes
-  , FlexibleContexts
-  , FlexibleInstances
-  , MultiParamTypeClasses
-  , ScopedTypeVariables
-  , TypeApplications
-  , TypeInType
-  , TypeFamilies
-  , TypeOperators
-  , UndecidableInstances
-#-}
-{-# OPTIONS_GHC
-  -fno-warn-unticked-promoted-constructors
-#-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+#if MIN_VERSION_base(4,12,0)
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE PolyKinds #-}
+#else
+{-# LANGUAGE TypeInType #-}
+#endif
+{-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 module Generics.SOP.Record.SubTyping
   ( cast
   , IsSubTypeOf
