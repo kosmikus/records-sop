@@ -1,16 +1,21 @@
-{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeInType #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
-{-# OPTIONS_GHC -fno-warn-redundant-constraints #-}
+#if MIN_VERSION_base(4,12,0)
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE PolyKinds #-}
+#else
+{-# LANGUAGE TypeInType #-}
+#endif
+{-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 module Generics.SOP.Record
   ( -- * A suitable representation for single-constructor records
     FieldLabel
