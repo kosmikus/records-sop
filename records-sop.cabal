@@ -1,12 +1,12 @@
 name: records-sop
-version: 0.1.1.0
+version: 0.1.1.1
 author: Andres Löh <andres@well-typed.com>
 maintainer: andres@well-typed.com
 license: BSD3
 license-file: LICENSE
 cabal-version: >= 1.10
 build-type: Simple
-tested-with: GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.4, GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.2
+tested-with: GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.4, GHC == 8.6.5, GHC == 8.8.4, GHC == 8.10.7, GHC == 9.0.2, GHC == 9.2.8, GHC == 9.4.5, GHC == 9.6.2
 category: Generics
 synopsis: Record subtyping and record utilities with generics-sop
 description:
