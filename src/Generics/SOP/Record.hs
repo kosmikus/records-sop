@@ -99,7 +99,22 @@ type Record (r :: RecordCode) = NP P r
 -- record, meaning it must have exactly one constructor, and that
 -- constructor must have field labels attached to it.
 --
-type RecordCodeOf a = ToRecordCode_Datatype a (DatatypeInfoOf a) (Code a)
+type family RecordCodeOf a where
+  RecordCodeOf a =
+    ToRecordCode_Datatype
+    a
+    (IfStuck
+      (DatatypeInfoOf a)
+      (TypeError (Text "No instance for " ':<>: 'ShowType (HasDatatypeInfo a)))
+      (DatatypeInfoOf a)
+    )
+    (Code a)
+
+data A
+
+type family IfStuck (expr :: k) (b :: k1) (c :: k1) :: k1 where
+  IfStuck (_ A) b c = b
+  IfStuck a     b c = c
 
 -- | Helper for 'RecordCodeOf', handling the datatype level. Both
 -- datatypes and newtypes are acceptable. Newtypes are just handled
